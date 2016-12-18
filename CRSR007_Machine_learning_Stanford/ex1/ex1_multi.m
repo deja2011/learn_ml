@@ -3,11 +3,11 @@
 %
 %  Instructions
 %  ------------
-% 
-%  This file contains code that helps you get started on the
-%  linear regression exercise. 
 %
-%  You will need to complete the following functions in this 
+%  This file contains code that helps you get started on the
+%  linear regression exercise.
+%
+%  You will need to complete the following functions in this
 %  exericse:
 %
 %     warmUpExercise.m
@@ -60,13 +60,13 @@ X = [ones(m, 1) X];
 % ====================== YOUR CODE HERE ======================
 % Instructions: We have provided you with the following starter
 %               code that runs gradient descent with a particular
-%               learning rate (alpha). 
+%               learning rate (alpha).
 %
-%               Your task is to first make sure that your functions - 
-%               computeCost and gradientDescent already work with 
+%               Your task is to first make sure that your functions -
+%               computeCost and gradientDescent already work with
 %               this starter code and support multiple variables.
 %
-%               After that, try running gradient descent with 
+%               After that, try running gradient descent with
 %               different values of alpha and see which one gives
 %               you the best result.
 %
@@ -82,11 +82,11 @@ X = [ones(m, 1) X];
 fprintf('Running gradient descent ...\n');
 
 % Choose some alpha value
-alpha = 0.01;
-num_iters = 400;
+alpha = 0.9;
+num_iters = 1000;
 % num_iters = 4;
 
-% Init Theta and Run Gradient Descent 
+% Init Theta and Run Gradient Descent
 theta = zeros(3, 1);
 [theta, J_history] = gradientDescentMulti(X, y, theta, alpha, num_iters);
 
@@ -101,10 +101,35 @@ fprintf('Theta computed from gradient descent: \n');
 fprintf(' %f \n', theta);
 fprintf('\n');
 
+pause;
+
+figure;
+
+alpha = [0.01, 0.03, 0.1, 0.3, 1];
+alpha = [0.8, 0.9, 1, 1.1, 1.2];
+alpha = [0.8, 0.85, 0.9, 0.95, 1];
+disp(alpha);
+colors = ['r', 'c', 'y', 'g', 'm', 'b', 'k'];
+num_alphas = numel(alpha);
+num_iters = 4;
+yatheta = zeros(3, num_alphas);
+J_history = zeros(num_iters, num_alphas);
+for i = 1:num_alphas
+    [yatheta(:,i), J_history(:,i)] = gradientDescentMulti(X, y, yatheta(:,i), alpha(i), num_iters);
+    hold on;
+    plot(1:num_iters, J_history(:,i), colors(i), 'LineWidth', 2);
+endfor
+xlabel('Number of iterations');
+ylabel('Cost J');
+
+pause;
+
+
 % Estimate the price of a 1650 sq-ft, 3 br house
 % ====================== YOUR CODE HERE ======================
 % Recall that the first column of X is all-ones. Thus, it does
 % not need to be normalized.
+fprintf('Use theta as %f \n', theta);
 Xnew = [1650, 3];
 Xnew = [1, (Xnew - mu) ./ sigma];
 price = Xnew * theta; % You should change this
@@ -122,12 +147,12 @@ pause;
 fprintf('Solving with normal equations...\n');
 
 % ====================== YOUR CODE HERE ======================
-% Instructions: The following code computes the closed form 
+% Instructions: The following code computes the closed form
 %               solution for linear regression using the normal
-%               equations. You should complete the code in 
+%               equations. You should complete the code in
 %               normalEqn.m
 %
-%               After doing so, you should complete this code 
+%               After doing so, you should complete this code
 %               to predict the price of a 1650 sq-ft, 3 br house.
 %
 
@@ -152,6 +177,9 @@ fprintf('\n');
 % Estimate the price of a 1650 sq-ft, 3 br house
 % ====================== YOUR CODE HERE ======================
 price = 0; % You should change this
+Xnew = [1650, 3];
+Xnew = [1, Xnew];
+price = Xnew * theta; % You should change this
 
 
 % ============================================================
