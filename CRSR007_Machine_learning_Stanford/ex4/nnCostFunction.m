@@ -63,8 +63,14 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
-
-
+%% =========== Part 1: Feedforward to get cost J =============
+X = [ones(m, 1), X];
+a1 = sigmoid(Theta1 * X');
+a1 = [ones(1, m); a1];
+a2 = sigmoid(Theta2 * a1);
+yp = (y == 1:10);
+J = (-1.0 / m) * sum(sum(yp' .* log(a2) + (1 - yp)' .* log(1 - a2))) ...
++ (lambda * 0.5 / m) * (sum(sum(Theta1(:,2:end) .^ 2)) + sum(sum(Theta2(:,2:end) .^ 2)));
 
 
 
