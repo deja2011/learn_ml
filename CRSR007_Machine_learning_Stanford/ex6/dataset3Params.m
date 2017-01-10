@@ -24,10 +24,27 @@ sigma = 0.3;
 %
 
 
-
-
-
-
+allC = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
+allSigma = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
+allC = [0.3, 1, 3];
+allSigma = [0.03, 0.1, 0.3];
+minErr = 999;
+for ic = 1:length(allC)
+    for is = 1:length(allSigma)
+        thisC = allC(ic);
+        thisSigma = allSigma(is);
+        model= svmTrain(X, y, thisC, @(x1, x2) gaussianKernel(x1, x2, thisSigma)); 
+        predictions = svmPredict(model, Xval);
+        err = mean(double(predictions ~= yval));
+        fprintf('Error of C = %f, sigma = %f is %f.', thisC, thisSigma, err);
+        if err < minErr
+            C = thisC;
+            sigma = thisSigma;
+            minErr = err;
+        end
+    end
+end
+fprintf('Best parameters are C = %f, sigma = %f', C, sigma);
 
 % =========================================================================
 
