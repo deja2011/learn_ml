@@ -27,10 +27,10 @@ centroids = zeros(K, n);
 %
 
 
-
-
-
-
+for k = 1:K
+    samples = X(find(idx == k), :);
+    centroids(k, :) = (1 / size(samples, 1)) * sum(samples, 1);
+end
 
 
 % =============================================================
