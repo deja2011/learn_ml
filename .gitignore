@@ -1,5 +1,7 @@
 *.tmp
 *.log
 *.png
+__pycache__
 octave-workspace
+figures
 token.mat
