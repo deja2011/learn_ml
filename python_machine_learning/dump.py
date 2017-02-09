@@ -7,17 +7,24 @@ This script will extract standalone runnable Python script from Python notebook 
 import sys
 import json
 import re
+import os
 
 
 def main():
-    dst = sys.argv[1]
-    obj = json.loads(open('{}/{}.ipynb'.format(dst, dst)).read())
-    for i, cell in enumerate(obj['cells']):
-        fid = open('{}/cell_{}.py'.format(dst, i), 'w')
-        for ln in cell['source']:
-            if re.match(r'^\s+$', ln):
-                ln = '\n'
-            fid.write(ln.encode('utf-8'))
+    nb_dir = r'/home/lawrenceli/Workplace/python-machine-learning-book/code'
+    chapters = os.listdir(nb_dir)
+    chapters = filter(lambda s: re.match(r'ch\d+', s), chapters)
+    for ch in chapters:
+        obj = json.loads(open(os.path.join(nb_dir, ch, '{}.ipynb'.format(ch))).read())
+        if not os.path.isdir(ch):
+            os.mkdir(ch)
+        fid = open(os.path.join(ch, '{}.all.py'.format(ch)), 'w')
+        for i, cell in enumerate(obj['cells']):
+            for ln in cell['source']:
+                if re.match(r'^\s+$', ln):
+                    ln = '\n'
+                fid.write(ln.encode('utf-8'))
+        fid.close()
 
 
 if __name__ == '__main__':
