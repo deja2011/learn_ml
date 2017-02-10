@@ -2,39 +2,59 @@ Copyright (c) 2015, 2016 [Sebastian Raschka](sebastianraschka.com)
 
 https://github.com/rasbt/python-machine-learning-book
 
-[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)# Python Machine Learning - Code Examples# Chapter 7 - Combining Different Models for Ensemble LearningNote that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).%load_ext watermark
-%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,pandas,matplotlib,scipy,sklearn*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*<br>
-<br>### Overview- [Learning with ensembles](#Learning-with-ensembles)
+[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)
+# Python Machine Learning - Code Examples
+# Chapter 7 - Combining Different Models for Ensemble Learning
+Note that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).
+%load_ext watermark
+%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,pandas,matplotlib,scipy,sklearn
+*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*
+<br>
+<br>
+### Overview
+- [Learning with ensembles](#Learning-with-ensembles)
 - [Implementing a simple majority vote classifier](#Implementing-a-simple-majority-vote-classifier)
   - [Combining different algorithms for classification with majority vote](#Combining-different-algorithms-for-classification-with-majority-vote)
 - [Evaluating and tuning the ensemble classifier](#Evaluating-and-tuning-the-ensemble-classifier)
 - [Bagging – building an ensemble of classifiers from bootstrap samples](#Bagging----Building-an-ensemble-of-classifiers-from-bootstrap-samples)
 - [Leveraging weak learners via adaptive boosting](#Leveraging-weak-learners-via-adaptive-boosting)
-- [Summary](#Summary)<br>
-<br>from IPython.display import Image
-%matplotlib inline# Added version check for recent scikit-learn 0.18 checks
+- [Summary](#Summary)
+<br>
+<br>
+from IPython.display import Image
+%matplotlib inline
+# Added version check for recent scikit-learn 0.18 checks
 from distutils.version import LooseVersion as Version
-from sklearn import __version__ as sklearn_version# Learning with ensemblesImage(filename='./images/07_01.png', width=500) Image(filename='./images/07_02.png', width=500) from scipy.misc import comb
+from sklearn import __version__ as sklearn_version
+# Learning with ensembles
+Image(filename='./images/07_01.png', width=500) 
+Image(filename='./images/07_02.png', width=500) 
+from scipy.misc import comb
 import math
 
 def ensemble_error(n_classifier, error):
     k_start = math.ceil(n_classifier / 2.0)
     probs = [comb(n_classifier, k) * error**k * (1-error)**(n_classifier - k)
              for k in range(k_start, n_classifier + 1)]
-    return sum(probs)**Note**
+    return sum(probs)
+**Note**
 
-For historical reasons, Python 2.7's `math.ceil` returns a `float` instead of an integer like in Python 3.x. Although Although this book was written for Python >3.4, let's make it compatible to Python 2.7 by casting it to an it explicitely:from scipy.misc import comb
+For historical reasons, Python 2.7's `math.ceil` returns a `float` instead of an integer like in Python 3.x. Although Although this book was written for Python >3.4, let's make it compatible to Python 2.7 by casting it to an it explicitely:
+from scipy.misc import comb
 import math
 
 def ensemble_error(n_classifier, error):
     k_start = int(math.ceil(n_classifier / 2.0))
     probs = [comb(n_classifier, k) * error**k * (1-error)**(n_classifier - k)
              for k in range(k_start, n_classifier + 1)]
-    return sum(probs)ensemble_error(n_classifier=11, error=0.25)import numpy as np
+    return sum(probs)
+ensemble_error(n_classifier=11, error=0.25)
+import numpy as np
 
 error_range = np.arange(0.0, 1.01, 0.01)
 ens_errors = [ensemble_error(n_classifier=11, error=error)
-              for error in error_range]import matplotlib.pyplot as plt
+              for error in error_range]
+import matplotlib.pyplot as plt
 
 plt.plot(error_range, 
          ens_errors, 
@@ -53,18 +73,24 @@ plt.legend(loc='upper left')
 plt.grid()
 plt.tight_layout()
 # plt.savefig('./figures/ensemble_err.png', dpi=300)
-plt.show()<br>
-<br># Implementing a simple majority vote classifier import numpy as np
+plt.show()
+<br>
+<br>
+# Implementing a simple majority vote classifier 
+import numpy as np
 
 np.argmax(np.bincount([0, 0, 1], 
-                      weights=[0.2, 0.2, 0.6]))ex = np.array([[0.9, 0.1],
+                      weights=[0.2, 0.2, 0.6]))
+ex = np.array([[0.9, 0.1],
                [0.8, 0.2],
                [0.4, 0.6]])
 
 p = np.average(ex, 
                axis=0, 
                weights=[0.2, 0.2, 0.6])
-pnp.argmax(p)from sklearn.base import BaseEstimator
+p
+np.argmax(p)
+from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.preprocessing import LabelEncoder
 from sklearn.externals import six
@@ -199,8 +225,11 @@ class MajorityVoteClassifier(BaseEstimator,
             for name, step in six.iteritems(self.named_classifiers):
                 for key, value in six.iteritems(step.get_params(deep=True)):
                     out['%s__%s' % (name, key)] = value
-            return out<br>
-<br>## Combining different algorithms for classification with majority votefrom sklearn import datasets
+            return out
+<br>
+<br>
+## Combining different algorithms for classification with majority vote
+from sklearn import datasets
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 if Version(sklearn_version) < '0.18':
@@ -216,7 +245,8 @@ y = le.fit_transform(y)
 X_train, X_test, y_train, y_test =\
        train_test_split(X, y, 
                         test_size=0.5, 
-                        random_state=1)import numpy as np
+                        random_state=1)
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier 
@@ -253,7 +283,8 @@ for clf, label in zip([pipe1, clf2, pipe3], clf_labels):
                              cv=10,
                              scoring='roc_auc')
     print("ROC AUC: %0.2f (+/- %0.2f) [%s]"
-          % (scores.mean(), scores.std(), label))# Majority Rule (hard) Voting
+          % (scores.mean(), scores.std(), label))
+# Majority Rule (hard) Voting
 
 mv_clf = MajorityVoteClassifier(classifiers=[pipe1, clf2, pipe3])
 
@@ -267,8 +298,11 @@ for clf, label in zip(all_clf, clf_labels):
                              cv=10,
                              scoring='roc_auc')
     print("ROC AUC: %0.2f (+/- %0.2f) [%s]"
-          % (scores.mean(), scores.std(), label))<br>
-<br># Evaluating and tuning the ensemble classifierfrom sklearn.metrics import roc_curve
+          % (scores.mean(), scores.std(), label))
+<br>
+<br>
+# Evaluating and tuning the ensemble classifier
+from sklearn.metrics import roc_curve
 from sklearn.metrics import auc
 
 colors = ['black', 'orange', 'blue', 'green']
@@ -302,8 +336,10 @@ plt.ylabel('True Positive Rate')
 
 # plt.tight_layout()
 # plt.savefig('./figures/roc.png', dpi=300)
-plt.show()sc = StandardScaler()
-X_train_std = sc.fit_transform(X_train)from itertools import product
+plt.show()
+sc = StandardScaler()
+X_train_std = sc.fit_transform(X_train)
+from itertools import product
 
 all_clf = [pipe1, clf2, pipe3, mv_clf]
 
@@ -353,7 +389,9 @@ plt.text(-10.5, 4.5,
 
 plt.tight_layout()
 # plt.savefig('./figures/voting_panel', bbox_inches='tight', dpi=300)
-plt.show()mv_clf.get_params()if Version(sklearn_version) < '0.18':
+plt.show()
+mv_clf.get_params()
+if Version(sklearn_version) < '0.18':
     from sklearn.cross_validation import GridSearchCV
 else:
     from sklearn.model_selection import GridSearchCV
@@ -380,8 +418,10 @@ else:
         print("%0.3f +/- %0.2f %r"
               % (grid.cv_results_[cv_keys[0]][r], 
                  grid.cv_results_[cv_keys[1]][r] / 2.0, 
-                 grid.cv_results_[cv_keys[2]][r]))print('Best parameters: %s' % grid.best_params_)
-print('Accuracy: %.2f' % grid.best_score_)**Note**  
+                 grid.cv_results_[cv_keys[2]][r]))
+print('Best parameters: %s' % grid.best_params_)
+print('Accuracy: %.2f' % grid.best_score_)
+**Note**  
 By default, the default setting for `refit` in `GridSearchCV` is `True` (i.e., `GridSeachCV(..., refit=True)`), which means that we can use the fitted `GridSearchCV` estimator to make predictions via the `predict` method, for example:
 
     grid = GridSearchCV(estimator=mv_clf, 
@@ -391,8 +431,17 @@ By default, the default setting for `refit` in `GridSearchCV` is `True` (i.e., `
     grid.fit(X_train, y_train)
     y_pred = grid.predict(X_test)
 
-In addition, the "best" estimator can directly be accessed via the `best_estimator_` attribute.grid.best_estimator_.classifiersmv_clf = grid.best_estimator_mv_clf.set_params(**grid.best_estimator_.get_params())mv_clf<br>
-<br># Bagging -- Building an ensemble of classifiers from bootstrap samplesImage(filename='./images/07_06.png', width=500) Image(filename='./images/07_07.png', width=400) import pandas as pd
+In addition, the "best" estimator can directly be accessed via the `best_estimator_` attribute.
+grid.best_estimator_.classifiers
+mv_clf = grid.best_estimator_
+mv_clf.set_params(**grid.best_estimator_.get_params())
+mv_clf
+<br>
+<br>
+# Bagging -- Building an ensemble of classifiers from bootstrap samples
+Image(filename='./images/07_06.png', width=500) 
+Image(filename='./images/07_07.png', width=400) 
+import pandas as pd
 
 df_wine = pd.read_csv('https://archive.ics.uci.edu/ml/'
                       'machine-learning-databases/wine/wine.data',
@@ -408,7 +457,8 @@ df_wine.columns = ['Class label', 'Alcohol', 'Malic acid', 'Ash',
 df_wine = df_wine[df_wine['Class label'] != 1]
 
 y = df_wine['Class label'].values
-X = df_wine[['Alcohol', 'Hue']].valuesfrom sklearn.preprocessing import LabelEncoder
+X = df_wine[['Alcohol', 'Hue']].values
+from sklearn.preprocessing import LabelEncoder
 if Version(sklearn_version) < '0.18':
     from sklearn.cross_validation import train_test_split
 else:
@@ -421,7 +471,8 @@ y = le.fit_transform(y)
 X_train, X_test, y_train, y_test =\
             train_test_split(X, y, 
                              test_size=0.40, 
-                             random_state=1)from sklearn.ensemble import BaggingClassifier
+                             random_state=1)
+from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 tree = DecisionTreeClassifier(criterion='entropy', 
@@ -435,7 +486,8 @@ bag = BaggingClassifier(base_estimator=tree,
                         bootstrap=True, 
                         bootstrap_features=False, 
                         n_jobs=1, 
-                        random_state=1)from sklearn.metrics import accuracy_score
+                        random_state=1)
+from sklearn.metrics import accuracy_score
 
 tree = tree.fit(X_train, y_train)
 y_train_pred = tree.predict(X_train)
@@ -453,7 +505,8 @@ y_test_pred = bag.predict(X_test)
 bag_train = accuracy_score(y_train, y_train_pred) 
 bag_test = accuracy_score(y_test, y_test_pred) 
 print('Bagging train/test accuracies %.3f/%.3f'
-      % (bag_train, bag_test))import numpy as np
+      % (bag_train, bag_test))
+import numpy as np
 import matplotlib.pyplot as plt
 
 x_min = X_train[:, 0].min() - 1
@@ -498,8 +551,13 @@ plt.tight_layout()
 # plt.savefig('./figures/bagging_region.png',
 #            dpi=300,
 #            bbox_inches='tight')
-plt.show()<br>
-<br># Leveraging weak learners via adaptive boostingImage(filename='./images/07_09.png', width=400) Image(filename='./images/07_10.png', width=500) from sklearn.ensemble import AdaBoostClassifier
+plt.show()
+<br>
+<br>
+# Leveraging weak learners via adaptive boosting
+Image(filename='./images/07_09.png', width=400) 
+Image(filename='./images/07_10.png', width=500) 
+from sklearn.ensemble import AdaBoostClassifier
 
 tree = DecisionTreeClassifier(criterion='entropy', 
                               max_depth=1,
@@ -508,7 +566,8 @@ tree = DecisionTreeClassifier(criterion='entropy',
 ada = AdaBoostClassifier(base_estimator=tree,
                          n_estimators=500, 
                          learning_rate=0.1,
-                         random_state=0)tree = tree.fit(X_train, y_train)
+                         random_state=0)
+tree = tree.fit(X_train, y_train)
 y_train_pred = tree.predict(X_train)
 y_test_pred = tree.predict(X_test)
 
@@ -524,7 +583,8 @@ y_test_pred = ada.predict(X_test)
 ada_train = accuracy_score(y_train, y_train_pred) 
 ada_test = accuracy_score(y_test, y_test_pred) 
 print('AdaBoost train/test accuracies %.3f/%.3f'
-      % (ada_train, ada_test))x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
+      % (ada_train, ada_test))
+x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
 y_min, y_max = X_train[:, 1].min() - 1, X_train[:, 1].max() + 1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
                      np.arange(y_min, y_max, 0.1))
@@ -558,5 +618,8 @@ plt.tight_layout()
 # plt.savefig('./figures/adaboost_region.png',
 #           dpi=300,
 #           bbox_inches='tight')
-plt.show()<br>
-<br># Summary...
+plt.show()
+<br>
+<br>
+# Summary
+...

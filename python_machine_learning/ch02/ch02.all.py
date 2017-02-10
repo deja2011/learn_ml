@@ -2,8 +2,15 @@ Copyright (c) 2015, 2016 [Sebastian Raschka](sebastianraschka.com)
 
 https://github.com/rasbt/python-machine-learning-book
 
-[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)# Python Machine Learning - Code Examples# Chapter 2 - Training Machine Learning Algorithms for ClassificationNote that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).%load_ext watermark
-%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,pandas,matplotlib*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*### Overview
+[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)
+# Python Machine Learning - Code Examples
+# Chapter 2 - Training Machine Learning Algorithms for Classification
+Note that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).
+%load_ext watermark
+%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,pandas,matplotlib
+*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*
+### Overview
+
 - [Artificial neurons - a brief glimpse into the early history
 of machine learning](#Artificial-neurons-a-brief-glimpse-into-the-early-history-of-machine-learning)
 - [Implementing a perceptron learning algorithm in Python](#Implementing-a-perceptron-learning-algorithm-in-Python)
@@ -12,9 +19,19 @@ of machine learning](#Artificial-neurons-a-brief-glimpse-into-the-early-history-
     - [Minimizing cost functions with gradient descent](#Minimizing-cost-functions-with-gradient-descent)
     - [Implementing an Adaptive Linear Neuron in Python](#Implementing-an-Adaptive-Linear-Neuron-in-Python)
     - [Large scale machine learning and stochastic gradient descent](#Large-scale-machine-learning-and-stochastic-gradient-descent)
-- [Summary](#Summary)<br>
-<br>from IPython.display import Image# Artificial neurons - a brief glimpse into the early history of machine learningImage(filename='./images/02_01.png', width=500) Image(filename='./images/02_02.png', width=500) Image(filename='./images/02_03.png', width=600)  Image(filename='./images/02_04.png', width=600) <br>
-<br># Implementing a perceptron learning algorithm in Pythonimport numpy as np
+- [Summary](#Summary)
+<br>
+<br>
+from IPython.display import Image
+# Artificial neurons - a brief glimpse into the early history of machine learning
+Image(filename='./images/02_01.png', width=500) 
+Image(filename='./images/02_02.png', width=500) 
+Image(filename='./images/02_03.png', width=600) 
+ Image(filename='./images/02_04.png', width=600) 
+<br>
+<br>
+# Implementing a perceptron learning algorithm in Python
+import numpy as np
 
 
 class Perceptron(object):
@@ -74,7 +91,8 @@ class Perceptron(object):
 
     def predict(self, X):
         """Return class label after unit step"""
-        return np.where(self.net_input(X) >= 0.0, 1, -1)### Additional Note (1)
+        return np.where(self.net_input(X) >= 0.0, 1, -1)
+### Additional Note (1)
 
 Please note that the learning rate η (eta) only has an effect on the classification outcome  if the weights are initialized to non-zero values. If all the weights
 are initialized to 0, only the scale of the weight vector, not the direction. To have the learning rate influence the classification outcome, the weights need to be initialized to non-zero values. The respective lines in the code that need to be changed to accomplish that are highlighted on below:
@@ -89,7 +107,8 @@ are initialized to 0, only the scale of the weight vector, not the direction. To
         # self.w_ = np.zeros(1 + X.shape[1]) ## remove this line
         rgen = np.random.RandomState(self.random_seed) # add this line
         self.w_ = rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1]) # add this line
-```### Additional Note (2)
+```
+### Additional Note (2)
 
 I received a note by a reader who asked about the net input function:
 
@@ -154,7 +173,8 @@ which is the same as
 | 4  5 | x | 2 | + bias = | 4*2 + 5*3 | + bias = | 23 + bias | = | 27 |
 | 6  7 |   | 3 |          | 6*2 + 7*3 |          | 33 + bias |   | 37 |
 
-```### Additional Note (3)
+```
+### Additional Note (3)
 
 For simplicity at this point, we don't talk about shuffling at this point; I wanted to introduce concepts incrementally so that it's not too overwhelming all at once. Since a reader asked me about this, I wanted to add a note about shuffling, which you may want to use if you are using a Perceptron in practice. I borrowed the code from the `AdalineSGD` section below to modify the Perceptron algorithm accordingly (new lines are marked by trailing "`# new`" inline comment):
 
@@ -232,21 +252,32 @@ class Perceptron(object):
     def predict(self, X):
         """Return class label after unit step"""
         return np.where(self.net_input(X) >= 0.0, 1, -1)
-```<br>
-<br>## Training a perceptron model on the Iris dataset...### Reading-in the Iris dataimport pandas as pd
+```
+<br>
+<br>
+## Training a perceptron model on the Iris dataset
+...
+### Reading-in the Iris data
+import pandas as pd
 
 df = pd.read_csv('https://archive.ics.uci.edu/ml/'
         'machine-learning-databases/iris/iris.data', header=None)
-df.tail()<hr>
+df.tail()
+<hr>
 
 ### Note:
 
 
 If the link to the Iris dataset provided above does not work for you, you can find a local copy in this repository at [./../datasets/iris/iris.data](./../datasets/iris/iris.data).
 
-Or you could fetch it viadf = pd.read_csv('https://raw.githubusercontent.com/rasbt/python-machine-learning-book/master/code/datasets/iris/iris.data', header=None)
-df.tail()<hr><br>
-<br>### Plotting the Iris data%matplotlib inline
+Or you could fetch it via
+df = pd.read_csv('https://raw.githubusercontent.com/rasbt/python-machine-learning-book/master/code/datasets/iris/iris.data', header=None)
+df.tail()
+<hr>
+<br>
+<br>
+### Plotting the Iris data
+%matplotlib inline
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -269,8 +300,11 @@ plt.legend(loc='upper left')
 
 plt.tight_layout()
 #plt.savefig('./images/02_06.png', dpi=300)
-plt.show()<br>
-<br>### Training the perceptron modelppn = Perceptron(eta=0.1, n_iter=10)
+plt.show()
+<br>
+<br>
+### Training the perceptron model
+ppn = Perceptron(eta=0.1, n_iter=10)
 
 ppn.fit(X, y)
 
@@ -280,8 +314,11 @@ plt.ylabel('Number of updates')
 
 plt.tight_layout()
 # plt.savefig('./perceptron_1.png', dpi=300)
-plt.show()<br>
-<br>### A function for plotting decision regionsfrom matplotlib.colors import ListedColormap
+plt.show()
+<br>
+<br>
+### A function for plotting decision regions
+from matplotlib.colors import ListedColormap
 
 
 def plot_decision_regions(X, y, classifier, resolution=0.02):
@@ -306,14 +343,16 @@ def plot_decision_regions(X, y, classifier, resolution=0.02):
     for idx, cl in enumerate(np.unique(y)):
         plt.scatter(x=X[y == cl, 0], y=X[y == cl, 1],
                     alpha=0.8, c=cmap(idx),
-                    marker=markers[idx], label=cl)plot_decision_regions(X, y, classifier=ppn)
+                    marker=markers[idx], label=cl)
+plot_decision_regions(X, y, classifier=ppn)
 plt.xlabel('sepal length [cm]')
 plt.ylabel('petal length [cm]')
 plt.legend(loc='upper left')
 
 plt.tight_layout()
 # plt.savefig('./perceptron_2.png', dpi=300)
-plt.show()#### Additional Note (3)
+plt.show()
+#### Additional Note (3)
 
 The `plt.scatter` function in the `plot_decision_regions` plot may raise errors if you have matplotlib <= 1.5.0 installed if you use this function to plot more than 4 classes as a reader pointed out: "[...] if there are four items to be displayed as the RGBA tuple is mis-interpreted as a list of colours".
 
@@ -324,9 +363,18 @@ plt.scatter(x=X[y == cl, 0], y=X[y == cl, 1],
 ```
 
 
-To address this problem in older matplotlib versions, you can replace `c=cmap(idx)` by `c=colors[idx]`.<br>
-<br># Adaptive linear neurons and the convergence of learning...## Minimizing cost functions with gradient descent Image(filename='./images/02_09.png', width=600)  Image(filename='./images/02_10.png', width=500) <br>
-<br>## Implementing an adaptive linear neuron in Pythonclass AdalineGD(object):
+To address this problem in older matplotlib versions, you can replace `c=cmap(idx)` by `c=colors[idx]`.
+<br>
+<br>
+# Adaptive linear neurons and the convergence of learning
+...
+## Minimizing cost functions with gradient descent
+ Image(filename='./images/02_09.png', width=600) 
+ Image(filename='./images/02_10.png', width=500) 
+<br>
+<br>
+## Implementing an adaptive linear neuron in Python
+class AdalineGD(object):
     """ADAptive LInear NEuron classifier.
 
     Parameters
@@ -393,7 +441,8 @@ To address this problem in older matplotlib versions, you can replace `c=cmap(id
 
     def predict(self, X):
         """Return class label after unit step"""
-        return np.where(self.activation(X) >= 0.0, 1, -1)fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(8, 4))
+        return np.where(self.activation(X) >= 0.0, 1, -1)
+fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(8, 4))
 
 ada1 = AdalineGD(n_iter=10, eta=0.01).fit(X, y)
 ax[0].plot(range(1, len(ada1.cost_) + 1), np.log10(ada1.cost_), marker='o')
@@ -409,12 +458,17 @@ ax[1].set_title('Adaline - Learning rate 0.0001')
 
 plt.tight_layout()
 # plt.savefig('./adaline_1.png', dpi=300)
-plt.show()<br>
-<br>Image(filename='./images/02_12.png', width=700) <br>
-<br># standardize features
+plt.show()
+<br>
+<br>
+Image(filename='./images/02_12.png', width=700) 
+<br>
+<br>
+# standardize features
 X_std = np.copy(X)
 X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
-X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()ada = AdalineGD(n_iter=15, eta=0.01)
+X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
+ada = AdalineGD(n_iter=15, eta=0.01)
 ada.fit(X_std, y)
 
 plot_decision_regions(X_std, y, classifier=ada)
@@ -432,8 +486,11 @@ plt.ylabel('Sum-squared-error')
 
 plt.tight_layout()
 # plt.savefig('./adaline_3.png', dpi=300)
-plt.show()<br>
-<br>## Large scale machine learning and stochastic gradient descentfrom numpy.random import seed
+plt.show()
+<br>
+<br>
+## Large scale machine learning and stochastic gradient descent
+from numpy.random import seed
 
 class AdalineSGD(object):
     """ADAptive LInear NEuron classifier.
@@ -534,7 +591,8 @@ class AdalineSGD(object):
 
     def predict(self, X):
         """Return class label after unit step"""
-        return np.where(self.activation(X) >= 0.0, 1, -1)ada = AdalineSGD(n_iter=15, eta=0.01, random_state=1)
+        return np.where(self.activation(X) >= 0.0, 1, -1)
+ada = AdalineSGD(n_iter=15, eta=0.01, random_state=1)
 ada.fit(X_std, y)
 
 plot_decision_regions(X_std, y, classifier=ada)
@@ -553,8 +611,15 @@ plt.ylabel('Average Cost')
 
 plt.tight_layout()
 # plt.savefig('./adaline_5.png', dpi=300)
-plt.show()ada.partial_fit(X_std[0, :], y[0])<br>
-<br># Summary...# AppendixThe code below (not in the book) is a simplified, example implementation of a logistic regression classifier trained via gradient descent. The AdalineGD classifier was used as template and I commented the respective lines that were changed to turn it into a logistic regression classifier (as briefly mentioned in the "logistic regression" sections of Chapter 3).class LogisticRegressionGD(object):
+plt.show()
+ada.partial_fit(X_std[0, :], y[0])
+<br>
+<br>
+# Summary
+...
+# Appendix
+The code below (not in the book) is a simplified, example implementation of a logistic regression classifier trained via gradient descent. The AdalineGD classifier was used as template and I commented the respective lines that were changed to turn it into a logistic regression classifier (as briefly mentioned in the "logistic regression" sections of Chapter 3).
+class LogisticRegressionGD(object):
     """Logistic regression classifier via gradient descent.
 
     Parameters
@@ -629,14 +694,16 @@ plt.show()ada.partial_fit(X_std[0, :], y[0])<br>
         """ Compute sigmoid activation."""
         z = self.net_input(X)
         sigmoid = 1.0 / (1.0 + np.exp(-z))
-        return sigmoidfrom sklearn.datasets import load_iris
+        return sigmoid
+from sklearn.datasets import load_iris
 
 iris = load_iris()
 X, y = iris.data[:100, [0, 2]], iris.target[:100]
 
 X_std = np.copy(X)
 X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
-X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()lr = LogisticRegressionGD(n_iter=25, eta=0.15)
+X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
+lr = LogisticRegressionGD(n_iter=25, eta=0.15)
 lr.fit(X_std, y)
 
 plot_decision_regions(X_std, y, classifier=lr)

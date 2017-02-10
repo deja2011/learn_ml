@@ -2,8 +2,15 @@ Copyright (c) 2015, 2016 [Sebastian Raschka](sebastianraschka.com)
 
 https://github.com/rasbt/python-machine-learning-book
 
-[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)# Python Machine Learning - Code Examples# Chapter 3 - A Tour of Machine Learning Classifiers Using Scikit-LearnNote that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).%load_ext watermark
-%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,pandas,matplotlib,sklearn*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*### Overview- [Choosing a classification algorithm](#Choosing-a-classification-algorithm)
+[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)
+# Python Machine Learning - Code Examples
+# Chapter 3 - A Tour of Machine Learning Classifiers Using Scikit-Learn
+Note that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).
+%load_ext watermark
+%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,pandas,matplotlib,sklearn
+*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*
+### Overview
+- [Choosing a classification algorithm](#Choosing-a-classification-algorithm)
 - [First steps with scikit-learn](#First-steps-with-scikit-learn)
     - [Training a perceptron via scikit-learn](#Training-a-perceptron-via-scikit-learn)
 - [Modeling class probabilities via logistic regression](#Modeling-class-probabilities-via-logistic-regression)
@@ -22,37 +29,58 @@ https://github.com/rasbt/python-machine-learning-book
     - [Building a decision tree](#Building-a-decision-tree)
     - [Combining weak to strong learners via random forests](#Combining-weak-to-strong-learners-via-random-forests)
 - [K-nearest neighbors – a lazy learning algorithm](#K-nearest-neighbors-–-a-lazy-learning-algorithm)
-- [Summary](#Summary)<br>
-<br><br>
-<br>from IPython.display import Image
-%matplotlib inline# Added version check for recent scikit-learn 0.18 checks
+- [Summary](#Summary)
+<br>
+<br>
+<br>
+<br>
+from IPython.display import Image
+%matplotlib inline
+# Added version check for recent scikit-learn 0.18 checks
 from distutils.version import LooseVersion as Version
-from sklearn import __version__ as sklearn_version# Choosing a classification algorithm...# First steps with scikit-learnLoading the Iris dataset from scikit-learn. Here, the third column represents the petal length, and the fourth column the petal width of the flower samples. The classes are already converted to integer labels where 0=Iris-Setosa, 1=Iris-Versicolor, 2=Iris-Virginica.from sklearn import datasets
+from sklearn import __version__ as sklearn_version
+# Choosing a classification algorithm
+...
+# First steps with scikit-learn
+Loading the Iris dataset from scikit-learn. Here, the third column represents the petal length, and the fourth column the petal width of the flower samples. The classes are already converted to integer labels where 0=Iris-Setosa, 1=Iris-Versicolor, 2=Iris-Virginica.
+from sklearn import datasets
 import numpy as np
 
 iris = datasets.load_iris()
 X = iris.data[:, [2, 3]]
 y = iris.target
 
-print('Class labels:', np.unique(y))Splitting data into 70% training and 30% test data:if Version(sklearn_version) < '0.18':
+print('Class labels:', np.unique(y))
+Splitting data into 70% training and 30% test data:
+if Version(sklearn_version) < '0.18':
     from sklearn.cross_validation import train_test_split
 else:
     from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=0)Standardizing the features:from sklearn.preprocessing import StandardScaler
+    X, y, test_size=0.3, random_state=0)
+Standardizing the features:
+from sklearn.preprocessing import StandardScaler
 
 sc = StandardScaler()
 sc.fit(X_train)
 X_train_std = sc.transform(X_train)
-X_test_std = sc.transform(X_test)<br>
-<br>## Training a perceptron via scikit-learnRedefining the `plot_decision_region` function from chapter 2:from sklearn.linear_model import Perceptron
+X_test_std = sc.transform(X_test)
+<br>
+<br>
+## Training a perceptron via scikit-learn
+Redefining the `plot_decision_region` function from chapter 2:
+from sklearn.linear_model import Perceptron
 
 ppn = Perceptron(n_iter=40, eta0=0.1, random_state=0)
-ppn.fit(X_train_std, y_train)y_test.shapey_pred = ppn.predict(X_test_std)
-print('Misclassified samples: %d' % (y_test != y_pred).sum())from sklearn.metrics import accuracy_score
+ppn.fit(X_train_std, y_train)
+y_test.shape
+y_pred = ppn.predict(X_test_std)
+print('Misclassified samples: %d' % (y_test != y_pred).sum())
+from sklearn.metrics import accuracy_score
 
-print('Accuracy: %.2f' % accuracy_score(y_test, y_pred))from matplotlib.colors import ListedColormap
+print('Accuracy: %.2f' % accuracy_score(y_test, y_pred))
+from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import warnings
 
@@ -99,7 +127,9 @@ def plot_decision_regions(X, y, classifier, test_idx=None, resolution=0.02):
                     alpha=1.0,
                     linewidths=1,
                     marker='o',
-                    s=55, label='test set')Training a perceptron model using the standardized training data:X_combined_std = np.vstack((X_train_std, X_test_std))
+                    s=55, label='test set')
+Training a perceptron model using the standardized training data:
+X_combined_std = np.vstack((X_train_std, X_test_std))
 y_combined = np.hstack((y_train, y_test))
 
 plot_decision_regions(X=X_combined_std, y=y_combined,
@@ -110,8 +140,13 @@ plt.legend(loc='upper left')
 
 plt.tight_layout()
 # plt.savefig('./figures/iris_perceptron_scikit.png', dpi=300)
-plt.show()<br>
-<br># Modeling class probabilities via logistic regression...### Logistic regression intuition and conditional probabilitiesimport matplotlib.pyplot as plt
+plt.show()
+<br>
+<br>
+# Modeling class probabilities via logistic regression
+...
+### Logistic regression intuition and conditional probabilities
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -134,8 +169,12 @@ ax.yaxis.grid(True)
 
 plt.tight_layout()
 # plt.savefig('./figures/sigmoid.png', dpi=300)
-plt.show()Image(filename='./images/03_03.png', width=500) <br>
-<br>### Learning the weights of the logistic cost functiondef cost_1(z):
+plt.show()
+Image(filename='./images/03_03.png', width=500) 
+<br>
+<br>
+### Learning the weights of the logistic cost function
+def cost_1(z):
     return - np.log(sigmoid(z))
 
 
@@ -158,8 +197,11 @@ plt.ylabel('J(w)')
 plt.legend(loc='best')
 plt.tight_layout()
 # plt.savefig('./figures/log_cost.png', dpi=300)
-plt.show()<br>
-<br>### Training a logistic regression model with scikit-learnfrom sklearn.linear_model import LogisticRegression
+plt.show()
+<br>
+<br>
+### Training a logistic regression model with scikit-learn
+from sklearn.linear_model import LogisticRegression
 
 lr = LogisticRegression(C=1000.0, random_state=0)
 lr.fit(X_train_std, y_train)
@@ -171,11 +213,16 @@ plt.ylabel('petal width [standardized]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/logistic_regression.png', dpi=300)
-plt.show()if Version(sklearn_version) < '0.17':
+plt.show()
+if Version(sklearn_version) < '0.17':
     lr.predict_proba(X_test_std[0, :])
 else:
-    lr.predict_proba(X_test_std[0, :].reshape(1, -1))<br>
-<br>### Tackling overfitting via regularizationImage(filename='./images/03_06.png', width=700) weights, params = [], []
+    lr.predict_proba(X_test_std[0, :].reshape(1, -1))
+<br>
+<br>
+### Tackling overfitting via regularization
+Image(filename='./images/03_06.png', width=700) 
+weights, params = [], []
 for c in np.arange(-5, 5):
     lr = LogisticRegression(C=10**c, random_state=0)
     lr.fit(X_train_std, y_train)
@@ -192,8 +239,16 @@ plt.xlabel('C')
 plt.legend(loc='upper left')
 plt.xscale('log')
 # plt.savefig('./figures/regression_path.png', dpi=300)
-plt.show()<br>
-<br># Maximum margin classification with support vector machinesImage(filename='./images/03_07.png', width=700) ## Maximum margin intuition...## Dealing with the nonlinearly separable case using slack variablesImage(filename='./images/03_08.png', width=600) from sklearn.svm import SVC
+plt.show()
+<br>
+<br>
+# Maximum margin classification with support vector machines
+Image(filename='./images/03_07.png', width=700) 
+## Maximum margin intuition
+...
+## Dealing with the nonlinearly separable case using slack variables
+Image(filename='./images/03_08.png', width=600) 
+from sklearn.svm import SVC
 
 svm = SVC(kernel='linear', C=1.0, random_state=0)
 svm.fit(X_train_std, y_train)
@@ -205,8 +260,12 @@ plt.ylabel('petal width [standardized]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/support_vector_machine_linear.png', dpi=300)
-plt.show()## Alternative implementations in scikit-learn<br>
-<br># Solving non-linear problems using a kernel SVMimport matplotlib.pyplot as plt
+plt.show()
+## Alternative implementations in scikit-learn
+<br>
+<br>
+# Solving non-linear problems using a kernel SVM
+import matplotlib.pyplot as plt
 import numpy as np
 
 np.random.seed(0)
@@ -230,8 +289,12 @@ plt.ylim([-3, 3])
 plt.legend(loc='best')
 plt.tight_layout()
 # plt.savefig('./figures/xor.png', dpi=300)
-plt.show()Image(filename='./images/03_11.png', width=700) <br>
-<br>## Using the kernel trick to find separating hyperplanes in higher dimensional spacesvm = SVC(kernel='rbf', random_state=0, gamma=0.10, C=10.0)
+plt.show()
+Image(filename='./images/03_11.png', width=700) 
+<br>
+<br>
+## Using the kernel trick to find separating hyperplanes in higher dimensional space
+svm = SVC(kernel='rbf', random_state=0, gamma=0.10, C=10.0)
 svm.fit(X_xor, y_xor)
 plot_decision_regions(X_xor, y_xor,
                       classifier=svm)
@@ -239,7 +302,8 @@ plot_decision_regions(X_xor, y_xor,
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/support_vector_machine_rbf_xor.png', dpi=300)
-plt.show()from sklearn.svm import SVC
+plt.show()
+from sklearn.svm import SVC
 
 svm = SVC(kernel='rbf', random_state=0, gamma=0.2, C=1.0)
 svm.fit(X_train_std, y_train)
@@ -251,7 +315,8 @@ plt.ylabel('petal width [standardized]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/support_vector_machine_rbf_iris_1.png', dpi=300)
-plt.show()svm = SVC(kernel='rbf', random_state=0, gamma=100.0, C=1.0)
+plt.show()
+svm = SVC(kernel='rbf', random_state=0, gamma=100.0, C=1.0)
 svm.fit(X_train_std, y_train)
 
 plot_decision_regions(X_combined_std, y_combined, 
@@ -261,9 +326,15 @@ plt.ylabel('petal width [standardized]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/support_vector_machine_rbf_iris_2.png', dpi=300)
-plt.show()<br>
-<br># Decision tree learningImage(filename='./images/03_15.png', width=500) <br>
-<br>## Maximizing information gain - getting the most bang for the buckimport matplotlib.pyplot as plt
+plt.show()
+<br>
+<br>
+# Decision tree learning
+Image(filename='./images/03_15.png', width=500) 
+<br>
+<br>
+## Maximizing information gain - getting the most bang for the buck
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -303,8 +374,11 @@ plt.xlabel('p(i=1)')
 plt.ylabel('Impurity Index')
 plt.tight_layout()
 #plt.savefig('./figures/impurity.png', dpi=300, bbox_inches='tight')
-plt.show()<br>
-<br>## Building a decision treefrom sklearn.tree import DecisionTreeClassifier
+plt.show()
+<br>
+<br>
+## Building a decision tree
+from sklearn.tree import DecisionTreeClassifier
 
 tree = DecisionTreeClassifier(criterion='entropy', max_depth=3, random_state=0)
 tree.fit(X_train, y_train)
@@ -319,14 +393,20 @@ plt.ylabel('petal width [cm]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/decision_tree_decision.png', dpi=300)
-plt.show()<br>
-<br>from sklearn.tree import export_graphviz
+plt.show()
+<br>
+<br>
+from sklearn.tree import export_graphviz
 
 export_graphviz(tree, 
                 out_file='tree.dot', 
-                feature_names=['petal length', 'petal width'])Image(filename='./images/03_18.png', width=600) **Note**
+                feature_names=['petal length', 'petal width'])
+Image(filename='./images/03_18.png', width=600) 
+**Note**
 
-If you have scikit-learn 0.18 and pydotplus installed (e.g., you can install it via `pip install pydotplus`), you can also show the decision tree directly without creating a separate dot file as shown below. Also note that `sklearn 0.18` offers a few additional options to make the decision tree visually more appealing.import pydotplusfrom IPython.display import Image
+If you have scikit-learn 0.18 and pydotplus installed (e.g., you can install it via `pip install pydotplus`), you can also show the decision tree directly without creating a separate dot file as shown below. Also note that `sklearn 0.18` offers a few additional options to make the decision tree visually more appealing.
+import pydotplus
+from IPython.display import Image
 from IPython.display import display
 
 if Version(sklearn_version) >= '0.18':
@@ -348,8 +428,11 @@ if Version(sklearn_version) >= '0.18':
         display(Image(graph.create_png()))
 
     except ImportError:
-        print('pydotplus is not installed.')<br>
-<br>## Combining weak to strong learners via random forestsfrom sklearn.ensemble import RandomForestClassifier
+        print('pydotplus is not installed.')
+<br>
+<br>
+## Combining weak to strong learners via random forests
+from sklearn.ensemble import RandomForestClassifier
 
 forest = RandomForestClassifier(criterion='entropy',
                                 n_estimators=10, 
@@ -365,8 +448,12 @@ plt.ylabel('petal width [cm]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/random_forest.png', dpi=300)
-plt.show()<br>
-<br># K-nearest neighbors - a lazy learning algorithmImage(filename='./images/03_20.png', width=400) from sklearn.neighbors import KNeighborsClassifier
+plt.show()
+<br>
+<br>
+# K-nearest neighbors - a lazy learning algorithm
+Image(filename='./images/03_20.png', width=400) 
+from sklearn.neighbors import KNeighborsClassifier
 
 knn = KNeighborsClassifier(n_neighbors=5, p=2, metric='minkowski')
 knn.fit(X_train_std, y_train)
@@ -379,5 +466,8 @@ plt.ylabel('petal width [standardized]')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('./figures/k_nearest_neighbors.png', dpi=300)
-plt.show()<br>
-<br># Summary...
+plt.show()
+<br>
+<br>
+# Summary
+...

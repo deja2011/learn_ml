@@ -24,6 +24,7 @@ def main():
                 if re.match(r'^\s+$', ln):
                     ln = '\n'
                 fid.write(ln.encode('utf-8'))
+            fid.write('\n')
         fid.close()
 
 

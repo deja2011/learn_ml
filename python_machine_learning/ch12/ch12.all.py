@@ -2,8 +2,15 @@ Copyright (c) 2015, 2016 [Sebastian Raschka](sebastianraschka.com)
 
 https://github.com/rasbt/python-machine-learning-book
 
-[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)# Python Machine Learning - Code Examples# Chapter 12 - Training Artificial Neural Networks for Image RecognitionNote that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).%load_ext watermark
-%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,scipy,matplotlib*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*### Overview- [Modeling complex functions with artificial neural networks](#Modeling-complex-functions-with-artificial-neural-networks)
+[MIT License](https://github.com/rasbt/python-machine-learning-book/blob/master/LICENSE.txt)
+# Python Machine Learning - Code Examples
+# Chapter 12 - Training Artificial Neural Networks for Image Recognition
+Note that the optional watermark extension is a small IPython notebook plugin that I developed to make the code reproducible. You can just skip the following line(s).
+%load_ext watermark
+%watermark -a 'Sebastian Raschka' -u -d -v -p numpy,scipy,matplotlib
+*The use of `watermark` is optional. You can install this IPython extension via "`pip install watermark`". For more information, please see: https://github.com/rasbt/watermark.*
+### Overview
+- [Modeling complex functions with artificial neural networks](#Modeling-complex-functions-with-artificial-neural-networks)
   - [Single-layer neural network recap](#Single-layer-neural-network-recap)
   - [Introducing the multi-layer neural network architecture](#Introducing-the-multi-layer-neural-network-architecture)
   - [Activating a neural network via forward propagation](#Activating-a-neural-network-via-forward-propagation)
@@ -20,12 +27,30 @@ https://github.com/rasbt/python-machine-learning-book
   - [Convolutional Neural Networks](#Convolutional-Neural-Networks)
   - [Recurrent Neural Networks](#Recurrent-Neural-Networks)
 - [A few last words about neural network implementation](#A-few-last-words-about-neural-network-implementation)
-- [Summary](#Summary)<br>
-<br>from IPython.display import Image
-%matplotlib inline# Modeling complex functions with artificial neural networks...## Single-layer neural network recapImage(filename='./images/12_01.png', width=600) <br>
-<br>## Introducing the multi-layer neural network architectureImage(filename='./images/12_02.png', width=400) Image(filename='./images/12_03.png', width=500) <br>
-<br>## Activating a neural network via forward propagationImage(filename='./images/12_04.png', width=500) <br>
-<br># Classifying handwritten digits...## Obtaining the MNIST datasetThe MNIST dataset is publicly available at http://yann.lecun.com/exdb/mnist/ and consists of the following four parts:
+- [Summary](#Summary)
+<br>
+<br>
+from IPython.display import Image
+%matplotlib inline
+# Modeling complex functions with artificial neural networks
+...
+## Single-layer neural network recap
+Image(filename='./images/12_01.png', width=600) 
+<br>
+<br>
+## Introducing the multi-layer neural network architecture
+Image(filename='./images/12_02.png', width=400) 
+Image(filename='./images/12_03.png', width=500) 
+<br>
+<br>
+## Activating a neural network via forward propagation
+Image(filename='./images/12_04.png', width=500) 
+<br>
+<br>
+# Classifying handwritten digits
+...
+## Obtaining the MNIST dataset
+The MNIST dataset is publicly available at http://yann.lecun.com/exdb/mnist/ and consists of the following four parts:
 
 - Training set images: train-images-idx3-ubyte.gz (9.9 MB, 47 MB unzipped, 60,000 samples)
 - Training set labels: train-labels-idx1-ubyte.gz (29 KB, 60 KB unzipped, 60,000 labels)
@@ -37,6 +62,7 @@ In this section, we will only be working with a subset of MNIST, thus, we only n
     gzip *ubyte.gz -d
 
 in your local MNIST download directory, or, using your favorite unzipping tool if you are working with a machine running on Microsoft Windows. The images are stored in byte form, and using the following function, we will read them into NumPy arrays that we will use to train our MLP.
+
 import os
 import struct
 import numpy as np
@@ -60,9 +86,13 @@ def load_mnist(path, kind='train'):
         images = np.fromfile(imgpath, 
                              dtype=np.uint8).reshape(len(labels), 784)
 
-    return images, labelsX_train, y_train = load_mnist('mnist/', kind='train')
-print('Rows: %d, columns: %d' % (X_train.shape[0], X_train.shape[1]))X_test, y_test = load_mnist('mnist/', kind='t10k')
-print('Rows: %d, columns: %d' % (X_test.shape[0], X_test.shape[1]))Visualize the first digit of each class:import matplotlib.pyplot as plt
+    return images, labels
+X_train, y_train = load_mnist('mnist/', kind='train')
+print('Rows: %d, columns: %d' % (X_train.shape[0], X_train.shape[1]))
+X_test, y_test = load_mnist('mnist/', kind='t10k')
+print('Rows: %d, columns: %d' % (X_test.shape[0], X_test.shape[1]))
+Visualize the first digit of each class:
+import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True,)
 ax = ax.flatten()
@@ -74,7 +104,9 @@ ax[0].set_xticks([])
 ax[0].set_yticks([])
 plt.tight_layout()
 # plt.savefig('./figures/mnist_all.png', dpi=300)
-plt.show()Visualize 25 different versions of "7":fig, ax = plt.subplots(nrows=5, ncols=5, sharex=True, sharey=True,)
+plt.show()
+Visualize 25 different versions of "7":
+fig, ax = plt.subplots(nrows=5, ncols=5, sharex=True, sharey=True,)
 ax = ax.flatten()
 for i in range(25):
     img = X_train[y_train == 7][i].reshape(28, 28)
@@ -84,13 +116,15 @@ ax[0].set_xticks([])
 ax[0].set_yticks([])
 plt.tight_layout()
 # plt.savefig('./figures/mnist_7.png', dpi=300)
-plt.show()Uncomment the following lines to optionally save the data in CSV format. 
+plt.show()
+Uncomment the following lines to optionally save the data in CSV format. 
 However, note that those CSV files will take up a substantial amount of storage space:
 
 - train_img.csv 1.1 GB (gigabytes)
 - train_labels.csv 1.4 MB (megabytes)
 - test_img.csv 187.0 MB
 - test_labels 144 KB (kilobytes)
+
 # np.savetxt('train_img.csv', X_train, fmt='%i', delimiter=',')
 # np.savetxt('train_labels.csv', y_train, fmt='%i', delimiter=',')
 # X_train = np.genfromtxt('train_img.csv', dtype=int, delimiter=',')
@@ -100,8 +134,11 @@ However, note that those CSV files will take up a substantial amount of storage 
 # np.savetxt('test_labels.csv', y_test, fmt='%i', delimiter=',')
 # X_test = np.genfromtxt('test_img.csv', dtype=int, delimiter=',')
 # y_test = np.genfromtxt('test_labels.csv', dtype=int, delimiter=',')
+
 <br>
-<br>## Implementing a multi-layer perceptronimport numpy as np
+<br>
+## Implementing a multi-layer perceptron
+import numpy as np
 from scipy.special import expit
 import sys
 
@@ -427,7 +464,8 @@ class NeuralNetMLP(object):
                 self.w2 -= (delta_w2 + (self.alpha * delta_w2_prev))
                 delta_w1_prev, delta_w2_prev = delta_w1, delta_w2
 
-        return selfnn = NeuralNetMLP(n_output=10, 
+        return self
+nn = NeuralNetMLP(n_output=10, 
                   n_features=X_train.shape[1], 
                   n_hidden=50, 
                   l2=0.1, 
@@ -438,7 +476,9 @@ class NeuralNetMLP(object):
                   decrease_const=0.00001,
                   minibatches=50, 
                   shuffle=True,
-                  random_state=1)nn.fit(X_train, y_train, print_progress=True)import matplotlib.pyplot as plt
+                  random_state=1)
+nn.fit(X_train, y_train, print_progress=True)
+import matplotlib.pyplot as plt
 
 plt.plot(range(len(nn.cost_)), nn.cost_)
 plt.ylim([0, 2000])
@@ -446,15 +486,18 @@ plt.ylabel('Cost')
 plt.xlabel('Epochs * 50')
 plt.tight_layout()
 # plt.savefig('./figures/cost.png', dpi=300)
-plt.show()batches = np.array_split(range(len(nn.cost_)), 1000)
+plt.show()
+batches = np.array_split(range(len(nn.cost_)), 1000)
 cost_ary = np.array(nn.cost_)
-cost_avgs = [np.mean(cost_ary[i]) for i in batches]plt.plot(range(len(cost_avgs)), cost_avgs, color='red')
+cost_avgs = [np.mean(cost_ary[i]) for i in batches]
+plt.plot(range(len(cost_avgs)), cost_avgs, color='red')
 plt.ylim([0, 2000])
 plt.ylabel('Cost')
 plt.xlabel('Epochs')
 plt.tight_layout()
 #plt.savefig('./figures/cost2.png', dpi=300)
-plt.show()y_train_pred = nn.predict(X_train)
+plt.show()
+y_train_pred = nn.predict(X_train)
 
 if sys.version_info < (3, 0):
     acc = ((np.sum(y_train == y_train_pred, axis=0)).astype('float') /
@@ -462,7 +505,8 @@ if sys.version_info < (3, 0):
 else:
     acc = np.sum(y_train == y_train_pred, axis=0) / X_train.shape[0]
 
-print('Training accuracy: %.2f%%' % (acc * 100))y_test_pred = nn.predict(X_test)
+print('Training accuracy: %.2f%%' % (acc * 100))
+y_test_pred = nn.predict(X_test)
 
 if sys.version_info < (3, 0):
     acc = ((np.sum(y_test == y_test_pred, axis=0)).astype('float') /
@@ -470,7 +514,8 @@ if sys.version_info < (3, 0):
 else:
     acc = np.sum(y_test == y_test_pred, axis=0) / X_test.shape[0]
 
-print('Test accuracy: %.2f%%' % (acc * 100))miscl_img = X_test[y_test != y_test_pred][:25]
+print('Test accuracy: %.2f%%' % (acc * 100))
+miscl_img = X_test[y_test != y_test_pred][:25]
 correct_lab = y_test[y_test != y_test_pred][:25]
 miscl_lab = y_test_pred[y_test != y_test_pred][:25]
 
@@ -485,7 +530,8 @@ ax[0].set_xticks([])
 ax[0].set_yticks([])
 plt.tight_layout()
 # plt.savefig('./figures/mnist_miscl.png', dpi=300)
-plt.show()miscl_img = X_test[y_test != y_test_pred][:25]
+plt.show()
+miscl_img = X_test[y_test != y_test_pred][:25]
 correct_lab = y_test[y_test != y_test_pred][:25]
 miscl_lab= y_test_pred[y_test != y_test_pred][:25]
 
@@ -500,14 +546,30 @@ ax[0].set_xticks([])
 ax[0].set_yticks([])
 plt.tight_layout()
 # plt.savefig('./figures/mnist_miscl.png', dpi=300)
-plt.show()<br>
-<br># Training an artificial neural network...## Computing the logistic cost functionImage(filename='./images/12_10.png', width=300) <br>
-<br>## Training neural networks via backpropagationImage(filename='./images/12_11.png', width=400) Image(filename='./images/12_12.png', width=500) <br>
-<br># Developing your intuition for backpropagation...# Debugging neural networks with gradient checkingImage(filename='./images/12_13.png', width=500) from scipy import __version__ as scipy_ver
+plt.show()
+<br>
+<br>
+# Training an artificial neural network
+...
+## Computing the logistic cost function
+Image(filename='./images/12_10.png', width=300) 
+<br>
+<br>
+## Training neural networks via backpropagation
+Image(filename='./images/12_11.png', width=400) 
+Image(filename='./images/12_12.png', width=500) 
+<br>
+<br>
+# Developing your intuition for backpropagation
+...
+# Debugging neural networks with gradient checking
+Image(filename='./images/12_13.png', width=500) 
+from scipy import __version__ as scipy_ver
 from numpy import __version__ as numpy_ver
 
 print('The following code requires NumPy >= 1.9.1. Your NumPy version is %s.' % (numpy_ver))
-print('The following code requires SciPy >= 0.14.0. Your SciPy version is %s. ' % (scipy_ver))import numpy as np
+print('The following code requires SciPy >= 0.14.0. Your SciPy version is %s. ' % (scipy_ver))
+import numpy as np
 from scipy.special import expit
 import sys
 
@@ -897,7 +959,8 @@ class MLPGradientCheck(object):
                 self.w2 -= (delta_w2 + (self.alpha * delta_w2_prev))
                 delta_w1_prev, delta_w2_prev = delta_w1, delta_w2
 
-        return selfnn_check = MLPGradientCheck(n_output=10, 
+        return self
+nn_check = MLPGradientCheck(n_output=10, 
                             n_features=X_train.shape[1], 
                             n_hidden=10, 
                             l2=0.0, 
@@ -908,8 +971,26 @@ class MLPGradientCheck(object):
                             decrease_const=0.0,
                             minibatches=1, 
                             shuffle=False,
-                            random_state=1)nn_check.fit(X_train[:5], y_train[:5], print_progress=False)<br>
-<br># Convergence in neural networksImage(filename='./images/12_14.png', width=500) <br>
-<br># Other neural network architectures...## Convolutional Neural NetworksImage(filename='./images/12_15.png', width=400) Image(filename='./images/12_16.png', width=700) <br>
-<br>## Recurrent Neural NetworksImage(filename='./images/12_17.png', width=400) <br>
-<br># A few last words about neural network implementation...# Summary...
+                            random_state=1)
+nn_check.fit(X_train[:5], y_train[:5], print_progress=False)
+<br>
+<br>
+# Convergence in neural networks
+Image(filename='./images/12_14.png', width=500) 
+<br>
+<br>
+# Other neural network architectures
+...
+## Convolutional Neural Networks
+Image(filename='./images/12_15.png', width=400) 
+Image(filename='./images/12_16.png', width=700) 
+<br>
+<br>
+## Recurrent Neural Networks
+Image(filename='./images/12_17.png', width=400) 
+<br>
+<br>
+# A few last words about neural network implementation
+...
+# Summary
+...
