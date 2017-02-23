@@ -1,6 +1,8 @@
 *.tmp
 *.log
 *.png
+*.csv
+*.pkl
 __pycache__
 octave-workspace
 figures
