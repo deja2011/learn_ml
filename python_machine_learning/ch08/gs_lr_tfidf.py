@@ -1,5 +1,6 @@
 import re
 import nltk
+import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -68,3 +69,6 @@ def main():
     clf = gs_lr_tfidf.best_estimator_
     print('Test Accuracy: %.3f' % clf.score(X_test, y_test))
 
+
+if __name__ == '__main__':
+    main()
