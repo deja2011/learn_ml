@@ -3,6 +3,8 @@
 *.png
 *.csv
 *.pkl
+*.db
+*.sqlite
 __pycache__
 octave-workspace
 figures
