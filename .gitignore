@@ -5,6 +5,7 @@
 *.pkl
 *.db
 *.sqlite
+*byte
 __pycache__
 octave-workspace
 figures
