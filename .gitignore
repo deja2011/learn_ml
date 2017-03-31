@@ -10,3 +10,5 @@ __pycache__
 octave-workspace
 figures
 token.mat
+env
+venv
