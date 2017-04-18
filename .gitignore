@@ -12,3 +12,5 @@ figures
 token.mat
 env
 venv
+*.mat
+*.zip
