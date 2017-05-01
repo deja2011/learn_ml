@@ -57,6 +57,7 @@ hidden_layer_state = zeros(numhid2, batchsize);
 % (b) hidden_layer_state = 1 ./ (1 - exp(-inputs_to_hidden_units));
 % (c) hidden_layer_state = 1 ./ (1 + exp(-inputs_to_hidden_units));
 % (d) hidden_layer_state = -1 ./ (1 + exp(-inputs_to_hidden_units));
+hidden_layer_state = 1 ./ (1 + exp(-inputs_to_hidden_units));
 
 %% COMPUTE STATE OF OUTPUT LAYER.
 % Compute inputs to softmax.
@@ -67,6 +68,7 @@ inputs_to_softmax = zeros(vocab_size, batchsize);
 % (b) inputs_to_softmax = hid_to_output_weights' * hidden_layer_state +  repmat(output_bias, batchsize, 1);
 % (c) inputs_to_softmax = hidden_layer_state * hid_to_output_weights' +  repmat(output_bias, 1, batchsize);
 % (d) inputs_to_softmax = hid_to_output_weights * hidden_layer_state +  repmat(output_bias, batchsize, 1);
+inputs_to_softmax = hid_to_output_weights' * hidden_layer_state +  repmat(output_bias, 1, batchsize);
 
 % Subtract maximum. 
 % Remember that adding or subtracting the same constant from each input to a
