@@ -14,3 +14,4 @@ env
 venv
 *.mat
 *.zip
+*.gz
