@@ -37,9 +37,9 @@ def load_data():
             [np.array(t) for t in validation_data]
     test_inputs, test_results = \
             [np.array(t) for t in test_data]
-    return training_intpus, training_results, \
-            validation_inputs, validation_results, \
-            test_inputs, test_data
+    return (training_inputs, training_results), \
+            (validation_inputs, validation_results), \
+            (test_inputs, test_results)
 
 
 def vectorized_result(j):

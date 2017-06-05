@@ -152,18 +152,16 @@ class Network(object):
         are empty if the corresponding flag is not set.
 
         """
-        if evaluation_data: n_data = len(evaluation_data)
-        n = len(training_data)
+        if evaluation_data:
+            evaluation_n = len(evaluation_data)
+        training_n = len(training_data)
         evaluation_cost, evaluation_accuracy = [], []
         training_cost, training_accuracy = [], []
         for j in xrange(epochs):
-            random.shuffle(training_data)
-            mini_batches = [
-                training_data[k:k+mini_batch_size]
-                for k in xrange(0, n, mini_batch_size)]
-            for mini_batch in mini_batches:
-                self.update_mini_batch(
-                    mini_batch, eta, lmbda, len(training_data))
+            for mini_batch_inputs, mini_batch_results in \
+                    self.get_mini_batches(training_data, mini_batch_size):
+                self.update_mini_batch(mini_batch_inputs, mini_batch_results,
+                                       eta, lmbda, training_n)
             print "Epoch %s training complete" % j
             if monitor_training_cost:
                 cost = self.total_cost(training_data, lmbda)
@@ -173,7 +171,7 @@ class Network(object):
                 accuracy = self.accuracy(training_data, convert=True)
                 training_accuracy.append(accuracy)
                 print "Accuracy on training data: {} / {}".format(
-                    accuracy, n)
+                    accuracy, training_n)
             if monitor_evaluation_cost:
                 cost = self.total_cost(evaluation_data, lmbda, convert=True)
                 evaluation_cost.append(cost)
@@ -182,12 +180,48 @@ class Network(object):
                 accuracy = self.accuracy(evaluation_data)
                 evaluation_accuracy.append(accuracy)
                 print "Accuracy on evaluation data: {} / {}".format(
-                    self.accuracy(evaluation_data), n_data)
+                    self.accuracy(evaluation_data), evaluation_n)
             print
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
+        # for j in xrange(epochs):
+        #     random.shuffle(training_data)
+        #     mini_batches = [
+        #         training_data[k:k+mini_batch_size]
+        #         for k in xrange(0, training_n, mini_batch_size)]
+        #     for mini_batch in mini_batches:
+        #         self.update_mini_batch(
+        #             mini_batch, eta, lmbda, len(training_data))
+        #     print "Epoch %s training complete" % j
+        #     if monitor_training_cost:
+        #         cost = self.total_cost(training_data, lmbda)
+        #         training_cost.append(cost)
+        #         print "Cost on training data: {}".format(cost)
+        #     if monitor_training_accuracy:
+        #         accuracy = self.accuracy(training_data, convert=True)
+        #         training_accuracy.append(accuracy)
+        #         print "Accuracy on training data: {} / {}".format(
+        #             accuracy, training_n)
+        #     if monitor_evaluation_cost:
+        #         cost = self.total_cost(evaluation_data, lmbda, convert=True)
+        #         evaluation_cost.append(cost)
+        #         print "Cost on evaluation data: {}".format(cost)
+        #     if monitor_evaluation_accuracy:
+        #         accuracy = self.accuracy(evaluation_data)
+        #         evaluation_accuracy.append(accuracy)
+        #         print "Accuracy on evaluation data: {} / {}".format(
+        #             self.accuracy(evaluation_data), evaluation_n)
+        #     print
 
-    def update_mini_batch(self, mini_batch, eta, lmbda, n):
+    def get_mini_batches(self, training_data, mini_batch_size):
+        n = len(training_data[0])
+        p = numpy.random.permutation(n)
+        for i in xrange(int(n / mini_batch_size) + 1):
+            slices = p[i*mini_batch_size : (i+1)*mini_batch_size]
+            yield training_data[0][slices], training_data[1][slices]
+
+    def update_mini_batch(self, mini_batch_inputs, mini_batch_results,
+                          eta, lmbda, n):
         """Update the network's weights and biases by applying gradient
         descent using backpropagation to a single mini batch.  The
         ``mini_batch`` is a list of tuples ``(x, y)``, ``eta`` is the
@@ -322,6 +356,19 @@ def vectorized_result(j):
     e = np.zeros((10, 1))
     e[j] = 1.0
     return e
+
+def one_hot_encoder(a, upper=9):
+    """Use one-hot encoder to encode a 1-D array into 2-D array. If length is
+    not provided, then the max value in given array is used.
+    """
+    if upper == None:
+        upper = a.max() + 1
+    e = np.zeros([a.shape[0], upper + 1])
+    e[np.arange(e.shape[0] + 1), a] = 1
+    return e
+
+def one_hot_decoder(a):
+    return a.nonzero()[1]
 
 def sigmoid(z):
     """The sigmoid function."""
